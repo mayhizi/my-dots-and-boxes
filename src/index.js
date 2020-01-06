@@ -4,6 +4,7 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import FireStoreProvider from "./providers/FireStoreProvider";
 import { BrowserRouter } from "react-router-dom";
+import "antd/dist/antd.css";
 
 ReactDOM.render(
   <FireStoreProvider>
