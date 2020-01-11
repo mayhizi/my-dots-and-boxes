@@ -6,7 +6,7 @@ export default function withGameContainer(GameComponent) {
   return ({ match }) => {
     const db = useContext(FireStoreContext);
     const [game, setGame] = useState([]);
-    const [players, setPlayers] = useState([]);
+    const [color, setColor] = useState("");
     const [cookies] = useCookies(["user"]);
 
     const finGameById = () => {
@@ -33,14 +33,19 @@ export default function withGameContainer(GameComponent) {
     // };
     const colors = ["blue", "green", "orange", "purple"];
     const getColor = () => {
-      console.log("Player from Game DB", game.players);
-      game.players.forEach((player, index) => {
-        if (player.id === cookies.user.id) return colors[index];
-      });
+      game.players &&
+        game.players.forEach((player, index) => {
+          player.get().then((snapshot) => {
+            if (snapshot.id === cookies.user.id) setColor(colors[index]);
+          });
+        });
     };
+    useEffect(() => {
+      getColor();
+    }, [game.players]);
     useEffect(() => {
       if (db) finGameById();
     }, [db]);
-    return <GameComponent game={game} color={getColor}></GameComponent>;
+    return <GameComponent game={game} color={color}></GameComponent>;
   };
 }

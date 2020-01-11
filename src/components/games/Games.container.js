@@ -25,8 +25,13 @@ export default function withGamesContainer(GamesComponent) {
     const JoinGame = (id) => {
       db.collection("games")
         .doc(id)
-        .update({
-          players: firebase.firestore.FieldValue.arrayUnion(cookies.user.id)
+        .get()
+        .then((snapshot) => {
+          const players = snapshot.get("players");
+          players.push(db.doc(`/users/${cookies.user.id}`));
+          db.collection("games")
+            .doc(id)
+            .update({ players });
         });
     };
 

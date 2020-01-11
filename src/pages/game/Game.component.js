@@ -113,7 +113,7 @@ const GameBoard = ({ margin, width, height, offset, user }) => {
   );
 };
 
-export default function GameComponent({ game }) {
+export default function GameComponent({ game, color }) {
   const gameContainerRef = useRef(null);
   const [dimention, setDimention] = useState({});
   useEffect(() => {
@@ -125,6 +125,9 @@ export default function GameComponent({ game }) {
       });
     }
   }, [gameContainerRef]);
+  useEffect(() => {
+    console.log(color);
+  }, [color]);
   return (
     <div
       style={{
@@ -141,7 +144,7 @@ export default function GameComponent({ game }) {
             width={dimention.width}
             height={dimention.height}
             margin={40}
-            user={{ color: "purple" }}
+            user={{ color: color }}
           />
         </svg>
       )}
