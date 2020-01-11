@@ -5,11 +5,14 @@ import * as serviceWorker from "./serviceWorker";
 import FireStoreProvider from "./providers/FireStoreProvider";
 import { BrowserRouter } from "react-router-dom";
 import "antd/dist/antd.css";
+import Layout from "./components/layout";
 
 ReactDOM.render(
   <FireStoreProvider>
     <BrowserRouter>
-      <App />
+      <Layout>
+        <App />
+      </Layout>
     </BrowserRouter>
   </FireStoreProvider>,
   document.getElementById("root")
