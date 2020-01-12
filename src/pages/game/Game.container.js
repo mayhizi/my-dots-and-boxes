@@ -7,6 +7,8 @@ export default function withGameContainer(GameComponent) {
     const db = useContext(FireStoreContext);
     const [game, setGame] = useState([]);
     const [color, setColor] = useState("");
+    const [players, setPlayers] = useState([]);
+
     const [cookies] = useCookies(["user"]);
 
     const finGameById = () => {
@@ -40,8 +42,21 @@ export default function withGameContainer(GameComponent) {
           });
         });
     };
+    const playersColor = () => {
+      game.players &&
+        setPlayers(
+          game.players.map((player, index) => {
+            return {
+              player: player,
+              playerNumber: `${index + 1}`,
+              color: colors[index]
+            };
+          })
+        );
+    };
     useEffect(() => {
       getColor();
+      playersColor();
     }, [game.players]);
     useEffect(() => {
       if (db) finGameById();
@@ -51,6 +66,7 @@ export default function withGameContainer(GameComponent) {
         game={game}
         color={color}
         user={cookies.user}
+        players={players}
       ></GameComponent>
     );
   };
