@@ -38,6 +38,12 @@ export default function withGamesContainer(GamesComponent) {
     useEffect(() => {
       if (db) findAllGames();
     }, [db]);
-    return <GamesComponent games={games} JoinGame={JoinGame}></GamesComponent>;
+    return (
+      <GamesComponent
+        games={games}
+        JoinGame={JoinGame}
+        user={cookies.user}
+      ></GamesComponent>
+    );
   };
 }

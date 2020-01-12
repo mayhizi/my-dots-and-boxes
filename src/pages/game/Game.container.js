@@ -46,6 +46,12 @@ export default function withGameContainer(GameComponent) {
     useEffect(() => {
       if (db) finGameById();
     }, [db]);
-    return <GameComponent game={game} color={color}></GameComponent>;
+    return (
+      <GameComponent
+        game={game}
+        color={color}
+        user={cookies.user}
+      ></GameComponent>
+    );
   };
 }

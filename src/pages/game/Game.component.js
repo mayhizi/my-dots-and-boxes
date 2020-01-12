@@ -1,28 +1,80 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import "./Game.style.css";
+import { FireStoreContext } from "../../providers/FireStoreProvider";
 
-const DrawLine = ({ user, x1, y1, x2, y2 }) => {
+const DrawLine = ({ user, x1, y1, x2, y2, lineKey, gameId, history }) => {
   const [color, setColor] = useState("silver");
   const [player, setPlayer] = useState(null);
-  return (
-    <line
-      x1={x1}
-      y1={y1}
-      x2={x2}
-      y2={y2}
-      style={{ stroke: color, strokeWidth: "7" }}
-      onMouseOver={() => !player && setColor("yellow")}
-      onMouseLeave={() => !player && setColor("silver")}
-      onClick={() => {
-        setColor(user.color);
-        setPlayer(user);
-      }}
-    />
-  );
+  const db = useContext(FireStoreContext);
+
+  const setHistory = (data) => {
+    db.collection("games")
+      .doc(gameId)
+      .get()
+      .then((snapshot) => {
+        const history = snapshot.get("history");
+
+        history.push(data);
+
+        db.collection("games")
+          .doc(gameId)
+          .update({ history });
+      });
+  };
+  const checkHistory = (key) => {
+    return history && history.find((next) => next.lineKey === key);
+  };
+  const checkTurn = () => {
+    console.log("turn", user.turn);
+    if (history) {
+      if (history.length === user.turn) return true;
+      if (history.length % user.number === user.turn) return true;
+    } else return user.turn === 0;
+    return false;
+  };
+  // useEffect(() => {
+
+  // }, [user.turn]);
+  useEffect(() => {
+    const changed = checkHistory(lineKey);
+    if (changed) {
+      setColor(changed.color);
+      setPlayer(changed.user);
+    }
+  }, [history]);
+  if (x1 && x2 && y1 && y2)
+    return (
+      <line
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        style={{ stroke: color, strokeWidth: "7" }}
+        onMouseOver={() => !player && setColor("yellow")}
+        onMouseLeave={() => !player && setColor("silver")}
+        onClick={() => {
+          if (checkTurn()) {
+            setColor(user.color);
+            setPlayer(user);
+            setHistory({ user, color: user.color, lineKey });
+          }
+        }}
+      />
+    );
+  return null;
 };
-const GameBoard = ({ margin, width, height, offset, user }) => {
+const GameBoard = ({
+  margin,
+  width,
+  height,
+  offset,
+  user,
+  gameId,
+  history
+}) => {
   const [points, setPoints] = useState([]);
   const [lines, setLines] = useState({});
+
   useEffect(() => {
     let next = [];
     const distanceX = (width - 2 * margin) / (offset - 1);
@@ -49,13 +101,14 @@ const GameBoard = ({ margin, width, height, offset, user }) => {
     );
     setLines(lines);
   }, [points]);
+
   const getHorizontalLines = () => {
     let horizontal = [];
     if (lines.horizontal) {
       Object.keys(lines.horizontal).forEach((key) => {
         const line = lines.horizontal[key];
-        const next = line.map(
-          (value, index) =>
+        const next = line.map((value, index) => {
+          return (
             index + 1 < line.length && (
               <DrawLine
                 x1={value}
@@ -63,9 +116,14 @@ const GameBoard = ({ margin, width, height, offset, user }) => {
                 x2={line[index + 1]}
                 y2={key}
                 user={user}
+                key={`h-${index}-${key}`}
+                lineKey={`h-${index}-${key}`}
+                gameId={gameId}
+                history={history}
               ></DrawLine>
             )
-        );
+          );
+        });
         horizontal = [...horizontal, ...next];
       });
     }
@@ -86,6 +144,10 @@ const GameBoard = ({ margin, width, height, offset, user }) => {
                 x2={key}
                 y2={line[index + 1]}
                 user={user}
+                key={`v-${index}-${key}`}
+                lineKey={`v-${index}-${key}`}
+                gameId={gameId}
+                history={history}
               />
             )
         );
@@ -96,38 +158,49 @@ const GameBoard = ({ margin, width, height, offset, user }) => {
   };
   return (
     <>
-      {points.map((point, index) => (
-        <circle
-          cx={point.x}
-          cy={point.y}
-          r="4"
-          stroke="black"
-          strokeWidth="3"
-          fill="black"
-          key={index}
-        />
-      ))}
+      {points &&
+        points.map(
+          (point, index) =>
+            point.x && (
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r="4"
+                stroke="black"
+                strokeWidth="3"
+                fill="black"
+                key={index}
+              />
+            )
+        )}
       {getHorizontalLines()}
       {getVerticalLines()}
     </>
   );
 };
 
-export default function GameComponent({ game, color }) {
+export default function GameComponent({ game, color, user }) {
   const gameContainerRef = useRef(null);
   const [dimention, setDimention] = useState({});
+  const [turn, setTurn] = useState(-1);
+  useEffect(() => {
+    if (game.players) {
+      const myTurn = game.players.indexOf(
+        game.players.find((player) => player.id === user.id)
+      );
+      setTurn(myTurn);
+      console.log("MY TURN", myTurn);
+    }
+  }, [game.players]);
   useEffect(() => {
     if (gameContainerRef.current) {
-      console.log(gameContainerRef.current.clientWidth);
       setDimention({
         width: gameContainerRef.current.clientWidth,
         height: gameContainerRef.current.clientHeight
       });
     }
   }, [gameContainerRef]);
-  useEffect(() => {
-    console.log(color);
-  }, [color]);
+
   return (
     <div
       style={{
@@ -144,7 +217,14 @@ export default function GameComponent({ game, color }) {
             width={dimention.width}
             height={dimention.height}
             margin={40}
-            user={{ color: color }}
+            user={{
+              ...user,
+              color: color,
+              turn: turn,
+              number: game.number
+            }}
+            gameId={game.id}
+            history={game.history}
           />
         </svg>
       )}

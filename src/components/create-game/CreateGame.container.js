@@ -11,6 +11,7 @@ export default function withCreateGameContainer(CreateGameComponent) {
         user: db.doc(`/users/${cookies.user.id}`),
         active: false,
         players: [],
+        history: [],
         number: number
       });
       //   .then((next) => {
