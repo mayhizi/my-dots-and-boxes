@@ -1,11 +1,10 @@
 import React from "react";
-import logo from "./logo.svg";
 import Home from "./pages/home";
 import Game from "./pages/game";
 import CreateGame from "./pages/creategame";
 import SignIn from "./components/signin";
 
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 function App() {
   return (
     <Router>

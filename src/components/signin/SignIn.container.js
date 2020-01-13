@@ -6,10 +6,8 @@ export default function withSignInContainer(SignInComponent) {
   return ({ children }) => {
     const db = useContext(FireStoreContext);
     const [cookies, setCookie, removeCookie] = useCookies(["user"]);
-    console.log("COKIES", cookies);
     const createUser = (username) => {
-      const user = db
-        .collection("users")
+      db.collection("users")
         .add({
           username
         })
@@ -18,7 +16,6 @@ export default function withSignInContainer(SignInComponent) {
             username: username,
             id: next.id
           });
-          console.log(next);
         });
     };
 

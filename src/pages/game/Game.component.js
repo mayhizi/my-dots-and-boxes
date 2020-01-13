@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import "./Game.style.css";
+import { Typography } from "antd";
 import { FireStoreContext } from "../../providers/FireStoreProvider";
 import Players from "../../components/display-game-players";
+const { Text } = Typography;
 
 const DrawSquare = ({ squares, history, setScore }) => {
   const [activeSquares, setActiveSquares] = useState([]);
   const updateSquares = () => {
     if (history) {
       const last = history[history.length - 1];
-      console.log("UPDATE", last);
       if (last) {
-        console.log("activeSquares", activeSquares);
-
         const founds = activeSquares.filter(
           (square) =>
             (square.points[0].x === last.x1 &&
@@ -34,9 +33,7 @@ const DrawSquare = ({ squares, history, setScore }) => {
         if (founds) {
           founds.forEach((found) => {
             const points = found.points;
-            console.log("POINTS FOUND", points);
             const foundPoints = points.filter((point) => {
-              console.log("POINT", point);
               return (
                 (point.x === last.x1 && point.y === last.y1) ||
                 (point.x === last.x2 && point.y === last.y2) ||
@@ -44,14 +41,12 @@ const DrawSquare = ({ squares, history, setScore }) => {
                 (point.x === last.x2 && point.y === last.y1)
               );
             });
-            console.log("POINT ", foundPoints);
             foundPoints.forEach((foundPoint) => {
               const indexPoint = points.indexOf(foundPoint);
               found.status[indexPoint]++;
               const activate = found.status
                 .map((state) => state >= 2)
                 .every((x) => x === true);
-              console.log("ACTIVATE", activate);
               if (activate) {
                 found.active = activate;
                 found.user = last.user;
@@ -59,17 +54,8 @@ const DrawSquare = ({ squares, history, setScore }) => {
             });
           });
 
-          // const indexPoint = points.indexOf(foundPoint);
-          // found.status[indexPoint]++;
-          // const activate = found.status
-          //   .map((state) => state >= 2)
-          //   .find((x) => x === false);
-          // console.log(activate);
-          // // updateActiveSquares(found square)
-
           setActiveSquares([...activeSquares]);
         }
-        console.log("FOUNDS", founds);
       }
     }
   };
@@ -77,18 +63,15 @@ const DrawSquare = ({ squares, history, setScore }) => {
     const scores = activeSquares
       .filter((square) => square.active)
       .reduce((next, square) => {
-        console.log("XXX", square);
         if (square.user) {
           if (!next[square.user.color]) next[square.user.color] = 0;
           next[square.user.color]++;
         }
         return next;
       }, []);
-    console.log("SCORES", scores);
     setScore(scores);
   };
   useEffect(() => {
-    console.log("ACTIVE SQUARES", activeSquares);
     updateScore();
   }, [activeSquares]);
   useEffect(() => {
@@ -139,23 +122,19 @@ const DrawLine = ({ user, x1, y1, x2, y2, lineKey, gameId, history }) => {
     return history && history.find((next) => next.lineKey === key);
   };
   const checkTurn = () => {
-    console.log("turn", user.turn);
     if (history) {
       if (history.length === user.turn) return true;
       if (history.length % user.number === user.turn) return true;
     } else return user.turn === 0;
     return false;
   };
-  // useEffect(() => {
 
-  // }, [user.turn]);
   useEffect(() => {
     const changed = checkHistory(lineKey);
     if (changed) {
       setColor(changed.color);
       setPlayer(changed.user);
     }
-    // console.log("History", history);
   }, [history]);
   if (x1 && x2 && y1 && y2)
     return (
@@ -258,7 +237,6 @@ const GameBoard = ({
   };
   const getSquares = () => {
     const chunked = chunk(points, offset);
-    console.log("ch", chunked);
     let i = 0,
       j = 0,
       rects = [];
@@ -306,9 +284,7 @@ const GameBoard = ({
     setLines(lines);
     setSquares(getSquares());
   }, [points]);
-  useEffect(() => {
-    console.log("Squares::", squares);
-  }, [squares]);
+  useEffect(() => {}, [squares]);
   return (
     <>
       <DrawSquare
@@ -348,12 +324,9 @@ export default function GameComponent({ game, color, user, players }) {
         game.players.find((player) => player.id === user.id)
       );
       setTurn(myTurn);
-      console.log("MY TURN", myTurn);
     }
   }, [game.players]);
-  useEffect(() => {
-    console.log("PLAYERS ", players);
-  }, [players]);
+  useEffect(() => {}, [players]);
   useEffect(() => {
     if (gameContainerRef.current) {
       setDimention({
@@ -368,12 +341,18 @@ export default function GameComponent({ game, color, user, players }) {
       style={{
         width: "600px",
         height: "600px",
-        // background: "silver",
         margin: "0 auto"
       }}
     >
       <Players players={players} scores={score}></Players>
-      {game.history && (game.history.length % game.number) + 1}
+      <Text mark>
+        Turn of {game.history && (game.history.length % game.number) + 1}
+      </Text>
+
+      {score.map((score) => {
+        console.log(score);
+      })}
+
       {dimention && (
         <svg ref={gameContainerRef} className="game-container">
           <GameBoard

@@ -1,36 +1,38 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Form, Icon, Input, Button, Checkbox } from "antd";
+import { Form, Icon, Input, Button, Typography, Row, Col } from "antd";
 import FormItem from "antd/lib/form/FormItem";
+const { Text } = Typography;
 
 export default function SignInComponent({ cookie, createUser, removeUser }) {
-  const { userCookie, setUserCookie, removeUserCookie } = cookie;
-  // console.log(userCookie);
-  const usernameRef = useRef(null);
+  const { userCookie } = cookie;
   const [username, setUsername] = useState("");
 
   return (
-    <div>
+    <div style={{ margin: "0 auto" }}>
       {userCookie.user ? (
-        <div>
-          Hello {userCookie.user.username}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              removeUser();
-            }}
-          >
-            <button type="submit">SignOut</button>
-            <Link to={`/creategame`}>Click Here To start playing now !!!</Link>
-          </form>
-        </div>
+        <Row>
+          <Col span={12}>
+            <Text mark>Hello {userCookie.user.username}</Text>
+          </Col>
+          <Col offset={8} span={4}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                removeUser();
+              }}
+            >
+              <button type="submit">SignOut</button>
+            </form>
+          </Col>
+
+          <Link to={`/creategame`}>Click Here To create a game</Link>
+        </Row>
       ) : (
         <Form
           onSubmit={(e) => {
             e.preventDefault();
-            // createUser(usernameRef.current.value);
             createUser(username);
-            // setUsername(event.target.value) = "";
           }}
           style={{ maxWidth: "300px", margin: "0 auto", padding: "20px" }}
         >
@@ -55,16 +57,4 @@ export default function SignInComponent({ cookie, createUser, removeUser }) {
       )}
     </div>
   );
-}
-{
-  /* <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            createUser(usernameRef.current.value);
-            usernameRef.current.value = "";
-          }}
-        >
-          <input type="text" ref={usernameRef}></input>
-          <button type="submit">Start the game</button>
-        </form> */
 }

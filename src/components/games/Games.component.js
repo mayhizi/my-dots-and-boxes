@@ -23,11 +23,13 @@ export default function GamesComponent({ games, JoinGame, user }) {
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "20px" }}>
       <ul>
         {games.map((game, index) => (
           <li key={index}>
-            <Link to={`/game/${game.id}`}>{game.number}</Link>
+            <Link to={`/game/${game.id}`}>
+              Click here after joining => {game.number}
+            </Link>
             {/* {game.players.length()} */}
             {getButton(game)}
           </li>

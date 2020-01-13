@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 export default function PlayersComponent({ players, scores }) {
   const [users, setUsers] = useState([]);
+
   const getUsers = async () => {
     try {
       return await players.map(async (player) => {
@@ -12,17 +13,15 @@ export default function PlayersComponent({ players, scores }) {
       console.log(error);
     }
   };
+
   useEffect(() => {
     if (players) {
       getUsers().then(async (data) => {
-        console.log("KKK", data);
         Promise.all(data).then((res) => setUsers(res));
       });
     }
   }, [players]);
-  useEffect(() => {
-    console.log("SSS", scores);
-  }, [scores]);
+
   return (
     <div>
       {users &&
@@ -38,7 +37,7 @@ export default function PlayersComponent({ players, scores }) {
                   backgroundColor: user.color
                 }}
               />{" "}
-              {user.username} score {}
+              {user.username}
             </div>
           );
         })}

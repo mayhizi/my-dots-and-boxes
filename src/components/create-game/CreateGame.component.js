@@ -9,6 +9,7 @@ export default function CreateGameComponent({ createGame }) {
           e.preventDefault();
           createGame(parseInt(numberRef.current.value));
         }}
+        style={{ maxWidth: "300px", margin: "0 auto", padding: "70px" }}
       >
         <input
           type="number"

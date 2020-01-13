@@ -15,24 +15,13 @@ export default function withGameContainer(GameComponent) {
       db.collection("games")
         .doc(match.params.id)
         .onSnapshot((next) => {
-          console.log("snapshot::", next.data());
           setGame({
             id: next.id,
             ...next.data()
           });
         });
     };
-    // const finPlayersByGame = () => {
-    //   db.collection("games")
-    //     .doc(match.params.id)
-    //     .onSnapshot((next) => {
-    //       console.log("snapshot::", next);
-    //       setPlayers({
-    //         id: next.id,
-    //         ...next.data()
-    //       });
-    //     });
-    // };
+
     const colors = ["blue", "green", "orange", "purple"];
     const getColor = () => {
       game.players &&
